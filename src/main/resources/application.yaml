@@ -1,0 +1,13 @@
+spring:
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: /api
+    url: /api-schema.yaml

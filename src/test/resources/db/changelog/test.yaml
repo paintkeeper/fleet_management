@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - include:
+      file: classpath:/db/changelog/master.yaml
+
+  - changeSet:
+      id: load-demo-drivers
+      author: engelier@gmx.de
+      changes:
+        - loadData:
+            columns:
+              - column:
+                  name: id
+                  type: string
+              - column:
+                  name: username
+                  type: string
+              - column:
+                  name: password
+                  type: string
+              - column:
+                  name: date_created
+                  type: string
+              - column:
+                  name: deleted
+                  type: boolean
+              - column:
+                  name: password_expired
+                  type: boolean
+              - column:
+                  name: online_status
+                  type: string
+            encoding: UTF-8
+            primaryKey: id
+            file: db/changelog/data/demo-drivers.csv
+            tableName: driver
+            quotchar: "\""

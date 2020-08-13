@@ -82,8 +82,7 @@ openApiGenerate {
 
     apiPackage.set("com.freenow.api")
     modelPackage.set("com.freenow.model")
-    invokerPackage.set("com.freenow.app")
-
+    invokerPackage.set("com.freenow")
     configOptions.set(
         mapOf(
             "dateLibrary" to "java8",
@@ -118,7 +117,7 @@ jooq {
                         name = "org.jooq.meta.extensions.liquibase.LiquibaseDatabase"
                         jdbc.apply {
                             driver = "org.h2.Driver"
-                            url = "jdbc:h2:mem:test-gradle"
+                            url = "jdbc:h2:mem:gradle"
                             user = "sa"
                             password = ""
                         }

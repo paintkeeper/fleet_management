@@ -1,0 +1,5 @@
+id,username,password,date_created,deleted,password_expired,online_status
+"cc95037f-5893-4bcf-a1dc-13d4220dbfc5","user_one@name.de","V3Ry$Tr0nGP2$$w0rD","2020-06-22 22:10:25+01",false,false,ONLINE
+"be598ce2-cf29-4202-b947-5cb58e32682f","user_two@name.de","V3Ry$Tr0nGP2$$w0rD","2020-06-21 22:10:25+01",false,true,ONLINE
+"90cb04b1-9b7d-43b3-8bab-0a7a982934d4","user_three@name.de","V3Ry$Tr0nGP2$$w0rD","2020-06-20 22:10:25+01",true,false,ONLINE
+"7030970c-a7de-471c-b64b-21348ef6a76a","user_four@name.de","V3Ry$Tr0nGP2$$w0rD","2020-06-19 22:10:25+01",false,false,OFFLINE

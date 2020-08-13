@@ -1,23 +1,34 @@
 openapi: 3.0.3
+
 info:
-  title: API Documentation
+  title: Free Now Test task API
   version: 1.0.0
+  license:
+    name: GPLv3
+    url: https://www.gnu.org/licenses/gpl-3.0.html
+  contact:
+    name: Andrei Alekseenko
+    email: engelier@gmx.de
+
 servers:
   - url: http://localhost:{port}/{base-path}
     description: Free NOW Service provider API
     variables:
-      port: 
+      port:
         enum:
-          - '80'
           - '8080'
         default: '8080'
       base-path: 
         default: v1
+
 tags:
   - name: Driver
+  - name: Car
     
 paths:
+
   /drivers:
+
     get:
       tags:
         - Driver
@@ -33,9 +44,8 @@ paths:
           required: false
           description: Next Driver ID from whom to start ordered list
           schema:
-            type: integer
-            format: int64
-
+            type: string
+            format: uuid
       responses:
         200:
           description: List of drivers
@@ -43,10 +53,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DriverList'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
         default:
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Unexpected'
 
   /driver:
+
     post:
       tags:
         - Driver
@@ -65,10 +80,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Driver'
+        400:
+          $ref: '#/components/responses/ConstraintViolation'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
         default:
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Unexpected'
 
   /driver/{id}:
+
     get:
       tags:
         - Driver
@@ -82,8 +104,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Driver'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
         default:
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Unexpected'
 
     delete:
       tags:
@@ -95,8 +121,14 @@ paths:
       responses:
         204:
           description: Driver deleted
+        400:
+          $ref: '#/components/responses/ConstraintViolation'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
         default:
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Unexpected'
 
     put:
       tags:
@@ -109,34 +141,212 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GeoCoordinate'
+              $ref: '#/components/schemas/GeoLocation'
       responses:
         202:
           description: Location updated successfully
+        400:
+          $ref: '#/components/responses/ConstraintViolation'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
         default:
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Unexpected'
 
+  /driver/{id}/{vin}:
+
+    put:
+      tags:
+        - Driver
+      operationId: assignCar
+      parameters:
+          - $ref: '#/components/parameters/id'
+          - $ref: '#/components/parameters/vin'
+      responses:
+        202:
+          description: Car added successfully
+        400:
+          $ref: '#/components/responses/ConstraintViolation'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+
+    delete:
+      tags:
+        - Driver
+      operationId: unassignCar
+      parameters:
+          - $ref: '#/components/parameters/id'
+          - $ref: '#/components/parameters/vin'
+      responses:
+        202:
+          description: Car removed successfully
+        400:
+          $ref: '#/components/responses/ConstraintViolation'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+
+  /car:
+
+    post:
+      tags:
+        - Car
+      operationId: addCar
+      requestBody:
+        description: Add Car to fleet
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Car'
+      responses:
+        201:
+          description: Car inserted to fleet database
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+        400:
+          $ref: '#/components/responses/ConstraintViolation'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+
+  /car/{vin}:
+
+    delete:
+      tags:
+        - Car
+      description: Remove Car from fleet
+      operationId: removeCar
+      parameters:
+        - $ref: '#/components/parameters/vin'
+      responses:
+        204:
+          description: Car removed from fleet
+        400:
+          $ref: '#/components/responses/ConstraintViolation'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+
+    patch:
+      tags:
+        - Car
+      description: Update Car parameter values
+      operationId: modifyCar
+      parameters:
+        - $ref: '#/components/parameters/vin'
+      requestBody:
+        description: Modify Car
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCar'
+      responses:
+        202:
+          description: Car information successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+        400:
+          $ref: '#/components/responses/ConstraintViolation'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+
+    get:
+      tags:
+        - Car
+      description: Retrieve Car information
+      operationId: carInfo
+      parameters:
+        - $ref: '#/components/parameters/vin'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
 
 components:
 
   responses:
-    error:
-      description: unexpected error
+
+    Unexpected:
+      description: Unexpected error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    ConstraintViolation:
+      description: Some constraints are violated.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Could not find entity with id.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Unauthorized.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
 
   parameters:
+
     id:
       name: id
       in: path
       required: true
       description: Driver ID
       schema:
-        type: integer
-        format: int64
-        minimum: 1
+        type: string
+        format: uuid
+
+    vin:
+      name: vin
+      in: path
+      required: true
+      description: Car body unique VIN number
+      schema:
+        type: string
+        minLength: 6
+        maxLength: 17
 
   schemas:
 
@@ -152,8 +362,8 @@ components:
           format: int32
         next:
           description: Next ID of a Driver not included into list
-          type: integer
-          format: int64
+          type: string
+          format: uuid
         drivers:
           type: array
           default: []
@@ -168,12 +378,15 @@ components:
         - username
       properties:
         id:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
+        date_created:
+          type: string
+          format: date-time
         username:
           type: string
         coordinate:
-          $ref: '#/components/schemas/GeoCoordinate'
+          $ref: '#/components/schemas/GeoLocation'
         online_status:
           $ref: '#/components/schemas/OnlineStatus'
 
@@ -187,7 +400,7 @@ components:
         username:
           type: string
           minLength: 5
-          maxLength: 255
+          maxLength: 64
         password:
           type: string
           description: |
@@ -206,8 +419,8 @@ components:
         - ONLINE
         - OFFLINE
 
-    GeoCoordinate:
-      title: Geo coordinates of a Driver or a Car
+    GeoLocation:
+      title: Geo coordinates of a Driver
       required:
         - latitude
         - longitude
@@ -223,30 +436,20 @@ components:
           minimum: -180.
           maximum: 180.
 
-    Address:
-      title: Address location
-      type: object
-      required:
-        - first_line
-        - post_code
-        - city
-      properties:
-        first_line:
-          type: string
-        second_line:
-          type: string
-        post_code:
-          type: string
-        city:
-          type: string
-        country_code:
-          type: string
-          default: 'DE'
+    CountryCode:
+      title: Codes for available countries
+      enum:
+        - US
+        - DE
+        - UK
+      default: DE
 
     Engine:
       title: Car engine type
       type: string
+      default: OIL
       enum:
+        - OIL
         - ELECTRIC
         - GAS
 
@@ -254,22 +457,71 @@ components:
       title: Car manufacturer
       type: object
       required:
-        - address
         - name
       properties:
+        id:
+          type: string
+          format: uuid
+        date_created:
+          type: string
+          format: date-time
         name:
           type: string
-        address:
-          $ref: '#/components/schemas/Address'
+        origin_country:
+          $ref: '#/components/schemas/CountryCode'
 
     Car:
       title: Car entity
       required:
+        - vin
+        - manufacturer
+        - model
         - license_plate
         - seat_count
         - engine_type
+        - convertible
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
+        date_created:
+          type: string
+          format: date-time
+        vin:
+          description: VIN number of car body
+          type: string
+          minLength: 6
+          maxLength: 17
+        manufacturer:
+          $ref: '#/components/schemas/Manufacturer'
+        model:
+          type: string
+        license_plate:
+          type: string
+          description: Licence plate installed on a car
+          example: BMW555
+        seat_count:
+          type: integer
+          format: int32
+          default: 4
+        engine_type:
+          $ref: '#/components/schemas/Engine'
+        convertible:
+          type: boolean
+          default: false
+        rating:
+          type: number
+          format: float
+
+    UpdateCar:
+      title: Update Car parameters
+      type: object
+      properties:
+        manufacturer:
+          $ref: '#/components/schemas/Manufacturer'
+        model:
+          type: string
         license_plate:
           type: string
           description: Licence plate installed on a car

@@ -9,5 +9,5 @@ server:
 
 springdoc:
   swagger-ui:
-    path: /api
+    path: /
     url: /api-schema.yaml

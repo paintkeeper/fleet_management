@@ -1,0 +1,172 @@
+databaseChangeLog:
+  - changeSet:
+      id: driver_table
+      author: engelier@gmx.de
+      changes:
+        - createTable:
+            tableName: driver
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password
+                  type: varchar(255)
+              - column:
+                  name: date_created
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: deleted
+                  type: boolean
+                  defaultValue: false
+              - column:
+                  name: password_expired
+                  type: boolean
+                  defaultValue: true
+              - column:
+                  name: online_status
+                  type: enum('ONLINE','OFFLINE')
+                  defaultValue: OFFLINE
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: driver_geolocation_table
+      author: engelier@gmx.de
+      changes:
+        - createTable:
+            tableName: driver_geolocation
+            columns:
+              - column:
+                  name: driver_id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    foreignKeyName: fk_geolocation_driver
+                    references: driver(id)
+              - column:
+                  name: latitude
+                  type: decimal
+                  constraints:
+                    nullable: false
+              - column:
+                  name: longitude
+                  type: decimal
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_coordinate_updated
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: manufacturer_table
+      author: engelier@gmx.de
+      changes:
+        - createTable:
+            tableName: manufacturer
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: origin_country_iso_code
+                  type: varchar(2)
+              - column:
+                  name: date_created
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: car_table
+      author: engelier@gmx.de
+      changes:
+        - createTable:
+            tableName: car
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: date_created
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: vin
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: model
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: license_plate
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: seat_count
+                  type: int
+                  defaultValue: 4
+                  constraints:
+                    nullable: false
+              - column:
+                  name: engine_type
+                  type: enum('OIL','GAS', 'ELECTRIC')
+                  defaultValue: OIL
+                  constraints:
+                    nullable: false
+              - column:
+                  name: convertible
+                  type: boolean
+                  defaultValue: false
+              - column:
+                  name: rating
+                  type: float
+              - column:
+                  name: manufacturer_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_car_manufacturer
+                    references: manufacturer(id)
+              - column:
+                  name: driver_id
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_car_driver
+                    references: driver(id)
+              - column:
+                  name: deleted
+                  type: boolean
+                  defaultValue: false

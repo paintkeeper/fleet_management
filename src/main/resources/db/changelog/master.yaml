@@ -1,76 +1,4 @@
 databaseChangeLog:
-  - changeSet:
-      id: driver_table
-      author: engelier@gmx.de
-      changes:
-        - createTable:
-            tableName: driver
-            columns:
-              - column:
-                  name: id
-                  type: uuid
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: username
-                  type: varchar(255)
-                  constraints:
-                    nullable: false
-                    unique: true
-              - column:
-                  name: password
-                  type: varchar(255)
-              - column:
-                  name: date_created
-                  type: timestamp with time zone
-                  constraints:
-                    nullable: false
-              - column:
-                  name: deleted
-                  type: boolean
-                  defaultValue: false
-              - column:
-                  name: password_expired
-                  type: boolean
-                  defaultValue: true
-              - column:
-                  name: online_status
-                  type: enum('ONLINE','OFFLINE')
-                  defaultValue: OFFLINE
-                  constraints:
-                    nullable: false
-
-  - changeSet:
-      id: driver_geolocation_table
-      author: engelier@gmx.de
-      changes:
-        - createTable:
-            tableName: driver_geolocation
-            columns:
-              - column:
-                  name: driver_id
-                  type: uuid
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-                    foreignKeyName: fk_geolocation_driver
-                    references: driver(id)
-              - column:
-                  name: latitude
-                  type: decimal
-                  constraints:
-                    nullable: false
-              - column:
-                  name: longitude
-                  type: decimal
-                  constraints:
-                    nullable: false
-              - column:
-                  name: date_coordinate_updated
-                  type: timestamp with time zone
-                  constraints:
-                    nullable: false
 
   - changeSet:
       id: manufacturer_table
@@ -142,8 +70,8 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: engine_type
-                  type: enum('OIL','GAS', 'ELECTRIC')
-                  defaultValue: OIL
+                  type: varchar(10)
+                  defaultValue: UNKNOWN
                   constraints:
                     nullable: false
               - column:
@@ -161,12 +89,85 @@ databaseChangeLog:
                     foreignKeyName: fk_car_manufacturer
                     references: manufacturer(id)
               - column:
-                  name: driver_id
+                  name: deleted
+                  type: boolean
+                  defaultValue: false
+
+  - changeSet:
+      id: driver_table
+      author: engelier@gmx.de
+      changes:
+        - createTable:
+            tableName: driver
+            columns:
+              - column:
+                  name: id
                   type: uuid
                   constraints:
-                    foreignKeyName: fk_car_driver
-                    references: driver(id)
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password
+                  type: varchar(255)
+              - column:
+                  name: date_created
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
               - column:
                   name: deleted
                   type: boolean
                   defaultValue: false
+              - column:
+                  name: password_expired
+                  type: boolean
+                  defaultValue: true
+              - column:
+                  name: online_status
+                  type: varchar(10)
+                  defaultValue: UNKNOWN
+                  constraints:
+                    nullable: false
+              - column:
+                  name: car_id
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_driver_car
+                    references: car(id)
+
+  - changeSet:
+      id: driver_geolocation_table
+      author: engelier@gmx.de
+      changes:
+        - createTable:
+            tableName: driver_geolocation
+            columns:
+              - column:
+                  name: driver_id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    foreignKeyName: fk_geolocation_driver
+                    references: driver(id)
+              - column:
+                  name: latitude
+                  type: decimal
+                  constraints:
+                    nullable: false
+              - column:
+                  name: longitude
+                  type: decimal
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_coordinate_updated
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false

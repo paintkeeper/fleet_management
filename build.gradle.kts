@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import nu.studer.gradle.jooq.JooqEdition
+import org.jooq.meta.jaxb.ForcedType
 import org.jooq.meta.jaxb.Property
 
 plugins {
@@ -45,10 +46,12 @@ dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
+        exclude(module = "mockito-core")
     }
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
+    testImplementation("com.ninja-squad:springmockk:2.0.3")
     jooqGenerator("com.h2database:h2")
     jooqGenerator("org.jooq:jooq-meta-extensions:3.13.4")
     jooqGenerator("org.jooq:jooq-codegen:3.13.4")
@@ -89,7 +92,8 @@ openApiGenerate {
             "enumPropertyNaming" to "UPPERCASE",
             "useTags" to "true",
             "gradleBuildFile" to "false",
-            "serviceInterface" to "true"
+            "serviceInterface" to "true",
+            "exceptionHandler" to "false"
         )
     )
 }
@@ -128,6 +132,30 @@ jooq {
                         properties.add(
                             Property().withKey("includeLiquibaseTables")
                                 .withValue("false")
+                        )
+                        forcedTypes.add(
+                            ForcedType()
+                                .withEnumConverter(true)
+                                .withIncludeExpression(".*\\.online_status")
+                                .withTypes(".*")
+                                .withUserType("com.freenow.model.OnlineStatus")
+                                .withConverter("org.jooq.Converter.ofNullable(String.class, OnlineStatus.class, i -> OnlineStatus.values()[i], OnlineStatus::name)")
+                        )
+                        forcedTypes.add(
+                            ForcedType()
+                                .withEnumConverter(true)
+                                .withIncludeExpression(".*\\.engine_type")
+                                .withTypes(".*")
+                                .withUserType("com.freenow.model.Engine")
+                                .withConverter("org.jooq.Converter.ofNullable(String.class, Engine.class, i -> Engine.values()[i], Engine::name)")
+                        )
+                        forcedTypes.add(
+                            ForcedType()
+                                .withEnumConverter(true)
+                                .withIncludeExpression(".*\\.*country_iso_code")
+                                .withTypes(".*")
+                                .withUserType("com.freenow.model.CountryCode")
+                                .withConverter("org.jooq.Converter.ofNullable(String.class, CountryCode.class, i -> CountryCode.values()[i], CountryCode::name)")
                         )
                     }
                     generate.apply {

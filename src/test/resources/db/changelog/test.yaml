@@ -3,6 +3,76 @@ databaseChangeLog:
       file: classpath:/db/changelog/master.yaml
 
   - changeSet:
+      id: load-demo-manufacturers
+      author: engelier@gmx.de
+      changes:
+        - loadData:
+            columns:
+              - column:
+                  name: id
+                  type: string
+              - column:
+                  name: name
+                  type: string
+              - column:
+                  name: origin_country_iso_code
+                  type: string
+              - column:
+                  name: date_created
+                  type: string
+            encoding: UTF-8
+            primaryKey: id
+            file: db/changelog/data/demo-manufacturers.csv
+            tableName: manufacturer
+            quotchar: "\""
+
+
+  - changeSet:
+      id: load-demo-cars
+      author: engelier@gmx.de
+      changes:
+        - loadData:
+            columns:
+              - column:
+                  name: id
+                  type: string
+              - column:
+                  name: vin
+                  type: string
+              - column:
+                  name: model
+                  type: string
+              - column:
+                  name: date_created
+                  type: string
+              - column:
+                  name: deleted
+                  type: boolean
+              - column:
+                  name: license_plate
+                  type: string
+              - column:
+                  name: seat_count
+                  type: numeric
+              - column:
+                  name: engine_type
+                  type: string
+              - column:
+                  name: convertible
+                  type: boolean
+              - column:
+                  name: rating
+                  type: numeric
+              - column:
+                  name: manufacturer_id
+                  type: string
+            encoding: UTF-8
+            primaryKey: id
+            file: db/changelog/data/demo-cars.csv
+            tableName: car
+            quotchar: "\""
+
+  - changeSet:
       id: load-demo-drivers
       author: engelier@gmx.de
       changes:
@@ -28,6 +98,9 @@ databaseChangeLog:
                   type: boolean
               - column:
                   name: online_status
+                  type: string
+              - column:
+                  name: car_id
                   type: string
             encoding: UTF-8
             primaryKey: id

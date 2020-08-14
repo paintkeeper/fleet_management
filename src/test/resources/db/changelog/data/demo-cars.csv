@@ -1,0 +1,6 @@
+id,date_created,vin,model,license_plate,seat_count,engine_type,convertible,rating,manufacturer_id,deleted
+c8ebf883-d39a-47bc-ac63-d450e46f1afd,"2020-06-22 22:10:25+01",qiuydsiu21932809s,X1,RND123,2,ELECTRIC,false,9,0a0a18a3-a953-4692-9554-582a188fc04d,false
+844ea81e-607f-427b-b4d5-7da2d67a297c,"2020-06-22 22:10:25+01",AJHKDSAJ12123,X2,RMB321,4,ELECTRIC,true,6,0a0a18a3-a953-4692-9554-582a188fc04d,false
+b8b7bb84-41d1-456b-9ef6-c8307b1cd122,"2020-06-22 22:10:25+01",UWBCHJDS2323hJ,Z1,@EWDDD,4,OIL,false,4,d9746514-2ed9-497a-966c-f6669a441cd0,false
+d0fec0d8-4b78-405a-9ade-d865beea0778,"2020-06-22 22:10:25+01",KJDHSBCBWhdjshd932,Z2,@DSKJD,4,OIL,false,9,d9746514-2ed9-497a-966c-f6669a441cd0,false
+5e48b12c-d0c7-48af-82ec-b439f3d82032,"2020-06-22 22:10:25+01",dushcjj2123jjs,Z3,@DJKSJI,4,GAS,true,5,d9746514-2ed9-497a-966c-f6669a441cd0,false

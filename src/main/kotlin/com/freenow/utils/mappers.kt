@@ -16,24 +16,121 @@
 
 package com.freenow.utils
 
-import com.freenow.jdbc.enums.DriverOnlineStatus
+import com.freenow.jdbc.tables.records.CarRecord
 import com.freenow.jdbc.tables.records.DriverRecord
-import com.freenow.model.Driver
-import com.freenow.model.OnlineStatus
+import com.freenow.jdbc.tables.records.ManufacturerRecord
+import com.freenow.model.*
+import java.time.OffsetDateTime
+import java.util.*
 
 /**
  * Andrei Alekseenko {engelier at gmx.de}
  */
-fun map(record: DriverRecord?): Driver? {
-    return record?.let {
+fun map(record: DriverRecord, geolocation: (UUID) -> GeoLocation?, car: (UUID?) -> Car?): Driver {
+    return record.let {
         Driver(
             id = it.id,
             username = it.username,
             dateCreated = it.dateCreated,
-            coordinate = null,
-            onlineStatus = if (it.onlineStatus == DriverOnlineStatus.ONLINE) {
-                OnlineStatus.ONLINE
-            } else OnlineStatus.OFFLINE
+            coordinate = geolocation(it.id),
+            onlineStatus = it.onlineStatus,
+            car = car(it.carId)
         )
     }
+}
+
+fun map(
+    createDriver: CreateDriver,
+    id: () -> UUID,
+    dateCreated: () -> OffsetDateTime?,
+    onlineStatus: () -> OnlineStatus,
+    carId: () -> UUID?
+): DriverRecord {
+    return DriverRecord(
+        id(),
+        createDriver.username,
+        null,
+        dateCreated(),
+        false,
+        true,
+        onlineStatus(),
+        carId()
+    )
+}
+
+fun map(
+    driver: Driver,
+    password: String? = null,
+    deleted: Boolean? = null,
+    passwordExpired: Boolean? = null
+): DriverRecord {
+    return DriverRecord(
+        driver.id,
+        driver.username,
+        password,
+        null,
+        deleted,
+        passwordExpired,
+        driver.onlineStatus,
+        driver.car?.id
+    )
+}
+
+fun map(
+    car: Car,
+    id: () -> UUID,
+    dateCreated: () -> OffsetDateTime?,
+    manufacturer: () -> UUID,
+    deleted: () -> Boolean
+): CarRecord {
+    return CarRecord(
+        id(),
+        dateCreated(),
+        car.vin,
+        car.model,
+        car.licensePlate,
+        car.seatCount,
+        car.engineType,
+        car.convertible,
+        car.rating?.toDouble(),
+        manufacturer(),
+        deleted()
+    )
+}
+
+fun map(record: CarRecord, manufacturer: (manufacturerId: UUID) -> Manufacturer): Car {
+    return Car(
+        vin = record.vin,
+        model = record.model,
+        engineType = record.engineType,
+        convertible = record.convertible,
+        licensePlate = record.licensePlate,
+        manufacturer = manufacturer(record.manufacturerId),
+        seatCount = record.seatCount,
+        rating = record.rating?.toFloat(),
+        id = record.id,
+        dateCreated = record.dateCreated
+    )
+}
+
+fun map(record: ManufacturerRecord): Manufacturer {
+    return Manufacturer(
+        id = record.id,
+        name = record.name,
+        dateCreated = record.dateCreated,
+        originCountry = record.originCountryIsoCode
+    )
+}
+
+fun map(
+    manufacturer: Manufacturer,
+    id: () -> UUID,
+    dateCreated: () -> OffsetDateTime?
+): ManufacturerRecord {
+    return ManufacturerRecord(
+        id(),
+        manufacturer.name,
+        manufacturer.originCountry,
+        dateCreated()
+    )
 }

@@ -18,13 +18,13 @@ servers:
         enum:
           - '8080'
         default: '8080'
-      base-path: 
+      base-path:
         default: v1
 
 tags:
   - name: Driver
   - name: Car
-    
+
 paths:
 
   /drivers:
@@ -154,15 +154,15 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
 
-  /driver/{id}/{vin}:
+  /driver/{id}/{carId}:
 
     put:
       tags:
         - Driver
       operationId: assignCar
       parameters:
-          - $ref: '#/components/parameters/id'
-          - $ref: '#/components/parameters/vin'
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/carId'
       responses:
         202:
           description: Car added successfully
@@ -172,6 +172,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
+        406:
+          $ref: '#/components/responses/ValidationError'
         default:
           $ref: '#/components/responses/Unexpected'
 
@@ -180,8 +182,7 @@ paths:
         - Driver
       operationId: unassignCar
       parameters:
-          - $ref: '#/components/parameters/id'
-          - $ref: '#/components/parameters/vin'
+        - $ref: '#/components/parameters/id'
       responses:
         202:
           description: Car removed successfully
@@ -223,7 +224,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
 
-  /car/{vin}:
+  /car/{carId}:
 
     delete:
       tags:
@@ -231,7 +232,7 @@ paths:
       description: Remove Car from fleet
       operationId: removeCar
       parameters:
-        - $ref: '#/components/parameters/vin'
+        - $ref: '#/components/parameters/carId'
       responses:
         204:
           description: Car removed from fleet
@@ -250,7 +251,7 @@ paths:
       description: Update Car parameter values
       operationId: modifyCar
       parameters:
-        - $ref: '#/components/parameters/vin'
+        - $ref: '#/components/parameters/carId'
       requestBody:
         description: Modify Car
         required: true
@@ -280,7 +281,7 @@ paths:
       description: Retrieve Car information
       operationId: carInfo
       parameters:
-        - $ref: '#/components/parameters/vin'
+        - $ref: '#/components/parameters/carId'
       responses:
         200:
           description: OK
@@ -327,6 +328,13 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
 
+    ValidationError:
+      description: Failed to validate business rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
   parameters:
 
     id:
@@ -338,15 +346,14 @@ components:
         type: string
         format: uuid
 
-    vin:
-      name: vin
+    carId:
+      name: carId
       in: path
       required: true
-      description: Car body unique VIN number
+      description: Car ID
       schema:
         type: string
-        minLength: 6
-        maxLength: 17
+        format: uuid
 
   schemas:
 
@@ -389,6 +396,8 @@ components:
           $ref: '#/components/schemas/GeoLocation'
         online_status:
           $ref: '#/components/schemas/OnlineStatus'
+        car:
+          $ref: '#/components/schemas/Car'
 
     CreateDriver:
       title: Create new Driver entity

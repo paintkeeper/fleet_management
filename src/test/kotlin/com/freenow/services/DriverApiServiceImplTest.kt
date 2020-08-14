@@ -16,30 +16,104 @@
 
 package com.freenow.services
 
-import com.freenow.api.NotFoundException
+import com.freenow.api.CarApiService
+import com.freenow.api.DriverApiService
+import com.freenow.jdbc.tables.records.DriverGeolocationRecord
+import com.freenow.jdbc.tables.records.DriverRecord
+import com.freenow.model.*
 import com.freenow.repositories.DriverRepository
+import com.freenow.repositories.GeolocationRepository
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
+import io.mockk.verify
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ActiveProfiles
-
+import org.junit.jupiter.api.extension.ExtendWith
+import java.time.OffsetDateTime
 import java.util.*
+
 
 /**
  * Andrei Alekseenko {engelier at gmx.de}
  */
-@SpringBootTest
-@ActiveProfiles("test")
+@ExtendWith(MockKExtension::class)
 internal class DriverApiServiceImplTest {
-    @Autowired
-    lateinit var driverRepository: DriverRepository
+    @MockK
+    lateinit var mockDriverRepository: DriverRepository
+
+    @MockK
+    lateinit var mockGeolocationRepository: GeolocationRepository
+
+    @MockK
+    lateinit var mockCarApiService: CarApiService
+
+    lateinit var record: DriverRecord
+    lateinit var recordUUID: String
+    lateinit var recordUsername: String
+    lateinit var recordPassword: String
+    lateinit var recordCreationDate: OffsetDateTime
+    lateinit var recordOnlineStatus: OnlineStatus
+    lateinit var vin: String
+    lateinit var car: Car
+    lateinit var carId: UUID
+
+    lateinit var systemUnderTest: DriverApiService
 
     @BeforeEach
     fun setUp() {
+        recordUUID = "e3e82769-d0da-4fa2-9184-3e4f5baa8ab6"
+        recordUsername = "username12"
+        recordPassword = "password00012"
+        recordCreationDate = OffsetDateTime.now()
+        recordOnlineStatus = OnlineStatus.ONLINE
+        vin = UUID.randomUUID().toString()
+        carId = UUID.randomUUID()
+        val uuid = UUID.fromString(recordUUID)
+        record = DriverRecord(
+            uuid,
+            recordUsername,
+            recordPassword,
+            recordCreationDate,
+            false,
+            false,
+            recordOnlineStatus,
+            null
+        )
+        car = Car(
+            vin = vin,
+            engineType = Engine.OIL,
+            convertible = true,
+            licensePlate = "RNDM",
+            manufacturer = Manufacturer(name = "BMW"),
+            seatCount = 4,
+            model = "S500",
+            id = carId,
+            dateCreated = recordCreationDate,
+            rating = 9.toFloat()
+        )
+        every { mockDriverRepository.create(ofType(DriverRecord::class)) }.returns(record)
+        every { mockDriverRepository.findById(eq(uuid)) }.returns(record)
+        every { mockDriverRepository.findByCarId(eq(carId)) }.returns(record)
+        every { mockDriverRepository.assignCar(ofType(UUID::class), ofType(UUID::class)) }.returns(true)
+        every { mockGeolocationRepository.findById(eq(uuid)) }.returns(
+            DriverGeolocationRecord(
+                uuid,
+                10.5.toBigDecimal(), (-11.6).toBigDecimal(),
+                recordCreationDate
+            )
+        )
+
+        every { mockCarApiService.carInfo(eq(carId)) }.returns(car)
+        every { mockCarApiService.modifyCar(eq(carId), ofType(UpdateCar::class)) }.returns(car)
+
+        systemUnderTest = DriverApiServiceImpl(
+            mockDriverRepository,
+            mockGeolocationRepository,
+            mockCarApiService
+        )
     }
 
     @AfterEach
@@ -47,18 +121,40 @@ internal class DriverApiServiceImplTest {
     }
 
     @Test
-    fun getDriver() {
-        val sut = DriverApiServiceImpl(driverRepository)
-        val driver = sut.getDriver(UUID.fromString("be598ce2-cf29-4202-b947-5cb58e32682f"))
+    fun createDriver() {
+        val driver = systemUnderTest.createDriver(
+            CreateDriver(
+                username = recordUsername,
+                password = recordPassword
+            )
+        )
+        verify(exactly = 1) { mockDriverRepository.create(any()) }
         assertThat(driver).isNotNull
-        val ex = assertThrows<NotFoundException> {
-            sut.getDriver(UUID.fromString("381eb40e-4d02-4c19-b300-cb419879d870"))
-        }.message
-        assertThat(ex).isEqualTo("Driver with ID: '381eb40e-4d02-4c19-b300-cb419879d870' hasn't been found in database")
+        assertThat(driver.coordinate).isNull()
+        val uuid = UUID.fromString(recordUUID)
+        assertThat(driver.id).isEqualTo(uuid)
+    }
+
+    @Test
+    fun getDriver() {
+        val uuid = UUID.fromString(recordUUID)
+        val driver = systemUnderTest.getDriver(uuid)
+        verify(exactly = 1) { mockDriverRepository.findById(eq(uuid)) }
+        verify(exactly = 1) { mockGeolocationRepository.findById(eq(uuid)) }
+        assertThat(driver).isNotNull
+        assertThat(driver.coordinate).isNotNull
+        assertThat(driver.id).isEqualTo(uuid)
     }
 
     @Test
     fun assignCar() {
-
+        val uuid = UUID.fromString(recordUUID)
+        systemUnderTest.assignCar(uuid, carId)
+        verify(exactly = 1) {
+            mockCarApiService.carInfo(eq(carId))
+        }
+        verify(exactly = 1) {
+            mockDriverRepository.assignCar(eq(uuid), eq(carId))
+        }
     }
 }

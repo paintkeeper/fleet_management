@@ -34,18 +34,7 @@ paths:
         - Driver
       operationId: findDrivers
       parameters:
-        - name: status
-          in: query
-          required: true
-          schema:
-            $ref: '#/components/schemas/OnlineStatus'
-        - name: nextId
-          in: query
-          required: false
-          description: Next Driver ID from whom to start ordered list
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/drivers_query'
       responses:
         200:
           description: List of drivers
@@ -165,15 +154,15 @@ paths:
         - $ref: '#/components/parameters/carId'
       responses:
         202:
-          description: Car added successfully
+          description: Car successfully assigned
         400:
           $ref: '#/components/responses/ConstraintViolation'
         401:
           $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/CarAlreadyInUse'
         404:
           $ref: '#/components/responses/NotFound'
-        406:
-          $ref: '#/components/responses/ValidationError'
         default:
           $ref: '#/components/responses/Unexpected'
 
@@ -296,6 +285,28 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
 
+  /cars:
+
+    get:
+      tags:
+        - Car
+      operationId: findCars
+      parameters:
+        - $ref: '#/components/parameters/cars_query'
+      responses:
+        200:
+          description: List of cars
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarList'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+
 components:
 
   responses:
@@ -335,6 +346,13 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
 
+    CarAlreadyInUse:
+      description: A car can be selected by exactly one ONLINE Driver.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
   parameters:
 
     id:
@@ -355,22 +373,78 @@ components:
         type: string
         format: uuid
 
+    drivers_query:
+      name: drivers_query
+      in: query
+      required: true
+      description: Driver search parameters
+      schema:
+        type: object
+        properties:
+          online_status:
+            $ref: '#/components/schemas/OnlineStatus'
+          username:
+            type: string
+          deleted:
+            type: boolean
+          password_expired:
+            type: boolean
+          license_plate:
+            type: string
+          rating_low_bound:
+            type: number
+            format: double
+          rating_high_bound:
+            type: number
+            format: double
+          vin:
+            type: string
+          manufacturer:
+            $ref: '#/components/schemas/Manufacturer'
+          seat_count:
+            type: integer
+            format: int32
+          model:
+            type: string
+          engine_type:
+            $ref: '#/components/schemas/Engine'
+
+    cars_query:
+      name: cars_query
+      in: query
+      required: true
+      description: Car search parameters
+      schema:
+        type: object
+        properties:
+          license_plate:
+            type: string
+          rating_low_bound:
+            type: number
+            format: double
+          rating_high_bound:
+            type: number
+            format: double
+          vin:
+            type: string
+          manufacturer:
+            $ref: '#/components/schemas/Manufacturer'
+          seat_count:
+            type: integer
+            format: int32
+          model:
+            type: string
+          engine_type:
+            $ref: '#/components/schemas/Engine'
+
   schemas:
 
     DriverList:
       title: List of selected drivers
       type: object
       required:
-        - total
         - drivers
       properties:
-        total:
-          type: integer
-          format: int32
-        next:
-          description: Next ID of a Driver not included into list
-          type: string
-          format: uuid
         drivers:
           type: array
           default: []
@@ -521,7 +595,7 @@ components:
           default: false
         rating:
           type: number
-          format: float
+          format: double
 
     UpdateCar:
       title: Update Car parameters
@@ -544,7 +618,19 @@ components:
           type: boolean
         rating:
           type: number
-          format: float
+          format: double
+
+    CarList:
+      title: List of selected cars
+      type: object
+      required:
+        - cars
+      properties:
+        cars:
+          type: array
+          default: []
+          items:
+            $ref: '#/components/schemas/Car'
 
     Error:
       type: object
@@ -557,4 +643,3 @@ components:
           format: int32
         message:
           type: string
-

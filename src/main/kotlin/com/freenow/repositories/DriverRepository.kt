@@ -18,10 +18,12 @@ package com.freenow.repositories
 
 import com.freenow.jdbc.tables.Driver.*
 import com.freenow.jdbc.tables.records.DriverRecord
+import com.freenow.model.OnlineStatus
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
+import java.util.stream.Stream
 
 /**
  * Andrei Alekseenko {engelier at gmx.de}
@@ -56,13 +58,6 @@ class DriverRepository(private val jooq: DSLContext) {
             .fetchOne()
     }
 
-    fun update(record: DriverRecord): DriverRecord {
-        return jooq.update(DRIVER)
-            .set(record)
-            .returning()
-            .fetchOne()
-    }
-
     fun unassignCar(id: UUID): Boolean {
         return jooq.update(DRIVER)
             .setNull(DRIVER.CAR_ID)
@@ -75,5 +70,21 @@ class DriverRepository(private val jooq: DSLContext) {
             .set(DRIVER.CAR_ID, carId)
             .where(DRIVER.ID.eq(id))
             .execute() == 1
+    }
+
+    fun findByParameters(
+        username: String?,
+        onlineStatus: OnlineStatus?,
+        deleted: Boolean?,
+        passwordExpired: Boolean?,
+        carIds: List<UUID>?
+    ): Stream<DriverRecord> {
+        var step = jooq.selectFrom(DRIVER).where("1=1")
+        step = username?.let { step.and(DRIVER.USERNAME.contains(it)) } ?: step
+        step = onlineStatus?.let { step.and(DRIVER.ONLINE_STATUS.eq(it)) } ?: step
+        step = deleted?.let { step.and(DRIVER.DELETED.eq(it)) } ?: step
+        step = passwordExpired?.let { step.and(DRIVER.PASSWORD_EXPIRED.eq(it)) } ?: step
+        step = carIds?.let { step.and(DRIVER.CAR_ID.`in`(it)) } ?: step
+        return step.fetchStream()
     }
 }

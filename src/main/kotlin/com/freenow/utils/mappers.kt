@@ -92,7 +92,7 @@ fun map(
         car.seatCount,
         car.engineType,
         car.convertible,
-        car.rating?.toDouble(),
+        car.rating,
         manufacturer(),
         deleted()
     )
@@ -107,7 +107,7 @@ fun map(record: CarRecord, manufacturer: (manufacturerId: UUID) -> Manufacturer)
         licensePlate = record.licensePlate,
         manufacturer = manufacturer(record.manufacturerId),
         seatCount = record.seatCount,
-        rating = record.rating?.toFloat(),
+        rating = record.rating,
         id = record.id,
         dateCreated = record.dateCreated
     )
@@ -132,5 +132,18 @@ fun map(
         manufacturer.name,
         manufacturer.originCountry,
         dateCreated()
+    )
+}
+
+fun map(driversQuery: DriversQuery): CarsQuery {
+    return CarsQuery(
+        licensePlate = driversQuery.licensePlate,
+        model = driversQuery.licensePlate,
+        seatCount = driversQuery.seatCount,
+        engineType = driversQuery.engineType,
+        manufacturer = driversQuery.manufacturer,
+        vin = driversQuery.vin,
+        ratingHighBound = driversQuery.ratingHighBound,
+        ratingLowBound = driversQuery.ratingLowBound
     )
 }

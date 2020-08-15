@@ -18,8 +18,9 @@ package com.freenow.services
 
 import com.freenow.api.CarApiService
 import com.freenow.api.DriverApiService
+import com.freenow.exceptions.CarAlreadyInUseException
 import com.freenow.exceptions.NotFoundException
-import com.freenow.exceptions.ValidationException
+import com.freenow.jdbc.tables.records.DriverRecord
 import com.freenow.model.*
 import com.freenow.repositories.DriverRepository
 import com.freenow.repositories.GeolocationRepository
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.OffsetDateTime
 import java.util.*
+import java.util.stream.Collectors
 
 @Service
 class DriverApiServiceImpl(
@@ -40,15 +42,23 @@ class DriverApiServiceImpl(
 
     @Transactional
     override fun assignCar(id: UUID, carId: UUID) {
-        getDriver(id).let { driver ->
-            carService.carInfo(carId)
-                .let {
-                    driverRepository.findByCarId(carId)
-                        ?.takeIf { it.id != driver.id }
-                        ?.let { throw ValidationException("Cannot assign Car, assigned to another Driver") }
-                    driverRepository.assignCar(driver.id, carId)
-                }
-        }
+        getDriver(id)
+            .takeIf { it.onlineStatus == OnlineStatus.ONLINE }
+            ?.let { driver ->
+                carService.carInfo(carId)
+                    .let {
+                        driverRepository.findByCarId(carId)
+                            ?.takeIf { it.id != driver.id }
+                            ?.let { drv ->
+                                if (drv.onlineStatus != OnlineStatus.ONLINE) {
+                                    unassignCar(drv.id)
+                                } else {
+                                    throw CarAlreadyInUseException("Cannot assign Car, assigned to another Driver")
+                                }
+                            }
+                        driverRepository.assignCar(driver.id, carId)
+                    }
+            }
     }
 
     override fun createDriver(createDriver: CreateDriver): Driver {
@@ -62,25 +72,26 @@ class DriverApiServiceImpl(
             throw NotFoundException("Driver with ID: '$id' hasn't been found in database")
     }
 
-    override fun findDrivers(status: OnlineStatus, nextId: UUID?): DriverList {
-        TODO("Not yet implemented")
+    override fun findDrivers(driversQuery: DriversQuery): DriverList {
+        val carIds = map(driversQuery).takeIf { hasCarParameters(it) }
+            ?.let { carService.findCars(it) }?.cars
+            ?.mapNotNull { it.id }
+            ?.takeIf { it.isNotEmpty() }
+        val driverList = driverRepository.findByParameters(
+            username = driversQuery.username,
+            onlineStatus = driversQuery.onlineStatus,
+            deleted = driversQuery.deleted,
+            passwordExpired = driversQuery.passwordExpired,
+            carIds = carIds
+        ).map { mergeValues(it) }
+            .collect(Collectors.toList())
+
+        return DriverList(driverList)
     }
 
     override fun getDriver(id: UUID): Driver {
         return driverRepository.findById(id)
-            ?.let { rec ->
-                map(rec, { driverId ->
-                    geolocationRepository.findById(driverId)
-                        ?.let { location ->
-                            GeoLocation(
-                                longitude = location.longitude.toDouble(),
-                                latitude = location.latitude.toDouble()
-                            )
-                        }
-                }) { carId ->
-                    carId?.let { carService.carInfo(it) }
-                }
-            }
+            ?.let { mergeValues(it) }
             ?: throw NotFoundException("Driver with ID: '$id' hasn't been found in database")
     }
 
@@ -96,4 +107,28 @@ class DriverApiServiceImpl(
         )
     }
 
+    private fun hasCarParameters(q: CarsQuery): Boolean {
+        return q.engineType
+                ?: q.licensePlate
+                ?: q.manufacturer
+                ?: q.model
+                ?: q.ratingHighBound
+                ?: q.ratingLowBound
+                ?: q.seatCount
+                ?: q.vin != null
+    }
+
+    private fun mergeValues(record: DriverRecord): Driver {
+        return map(record, { driverId ->
+            geolocationRepository.findById(driverId)
+                ?.let { location ->
+                    GeoLocation(
+                        longitude = location.longitude.toDouble(),
+                        latitude = location.latitude.toDouble()
+                    )
+                }
+        }) { carId ->
+            carId?.let { carService.carInfo(it) }
+        }
+    }
 }

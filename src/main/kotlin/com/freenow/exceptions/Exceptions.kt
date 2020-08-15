@@ -26,7 +26,7 @@ sealed class ApiException(msg: String, val code: Int) : RuntimeException(msg)
 
 class NotFoundException(msg: String, code: Int = HttpStatus.NOT_FOUND.value()) : ApiException(msg, code)
 class ValidationException(msg: String, code: Int = HttpStatus.NOT_ACCEPTABLE.value()) : ApiException(msg, code)
-
+class CarAlreadyInUseException(msg: String, code: Int = HttpStatus.FORBIDDEN.value()) : ApiException(msg, code)
 
 @ControllerAdvice
 class DefaultExceptionHandler {

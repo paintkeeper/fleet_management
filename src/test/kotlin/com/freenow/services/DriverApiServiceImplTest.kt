@@ -92,7 +92,7 @@ internal class DriverApiServiceImplTest {
             model = "S500",
             id = carId,
             dateCreated = recordCreationDate,
-            rating = 9.toFloat()
+            rating = 9.0
         )
         every { mockDriverRepository.create(ofType(DriverRecord::class)) }.returns(record)
         every { mockDriverRepository.findById(eq(uuid)) }.returns(record)

@@ -23,6 +23,7 @@ import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
+import java.util.stream.Stream
 
 /**
  * Andrei Alekseenko {engelier at gmx.de}
@@ -73,6 +74,28 @@ class CarRepository(private val jooq: DSLContext) {
         step = rating?.let { step.set(CAR.RATING, it) } ?: step
         step = manufacturer?.let { step.set(CAR.MANUFACTURER_ID, it) } ?: step
         return step.where(CAR.ID.eq(id)).execute() == 1
+    }
+
+    fun findByParameters(
+        licensePlate: String?,
+        ratingLowBound: Double?,
+        ratingHighBound: Double?,
+        vin: String?,
+        manufacturerId: UUID?,
+        seatCount: Int?,
+        model: String?,
+        engineType: Engine?
+    ): Stream<CarRecord> {
+        var step = jooq.selectFrom(CAR).where("1=1")
+        step = model?.let { step.and(CAR.MODEL.contains(it)) } ?: step
+        step = licensePlate?.let { step.and(CAR.LICENSE_PLATE.contains(it)) } ?: step
+        step = vin?.let { step.and(CAR.VIN.contains(it)) } ?: step
+        step = seatCount?.let { step.and(CAR.SEAT_COUNT.eq(it)) } ?: step
+        step = engineType?.let { step.and(CAR.ENGINE_TYPE.eq(it)) } ?: step
+        step = ratingLowBound?.let { step.and(CAR.RATING.ge(it)) } ?: step
+        step = ratingHighBound?.let { step.and(CAR.RATING.le(it)) } ?: step
+        step = manufacturerId?.let { step.and(CAR.MANUFACTURER_ID.eq(it)) } ?: step
+        return step.fetchStream()
     }
 
 }

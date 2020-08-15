@@ -18,6 +18,7 @@ package com.freenow
 
 import com.freenow.api.CarApiService
 import com.freenow.api.DriverApiService
+import com.freenow.exceptions.CarAlreadyInUseException
 import com.freenow.exceptions.NotFoundException
 import com.freenow.exceptions.ValidationException
 import com.freenow.model.*
@@ -117,7 +118,7 @@ internal class IntegrationTests {
     fun `attempt to assign car belongs to another Driver`() {
         val driverId = UUID.fromString("be598ce2-cf29-4202-b947-5cb58e32682f")
         val carId = UUID.fromString("c8ebf883-d39a-47bc-ac63-d450e46f1afd")
-        val ex = assertThrows<ValidationException> {
+        val ex = assertThrows<CarAlreadyInUseException> {
             driverApiService.assignCar(driverId, carId)
         }.message
         assertThat(ex).isEqualTo("Cannot assign Car, assigned to another Driver")
@@ -126,7 +127,7 @@ internal class IntegrationTests {
     @Test
     @Transactional(readOnly = true)
     fun `assign-unassing cases for Driver and Car`() {
-        val driverUuid = UUID.fromString("7030970c-a7de-471c-b64b-21348ef6a76a")
+        val driverUuid = UUID.fromString("90cb04b1-9b7d-43b3-8bab-0a7a982934d4")
         val carUuid = UUID.fromString("b8b7bb84-41d1-456b-9ef6-c8307b1cd122")
         val randomId = UUID.randomUUID()
         var msg = assertThrows<NotFoundException> {
@@ -250,5 +251,83 @@ internal class IntegrationTests {
         assertThrows<NotFoundException> {
             carApiService.carInfo(carId)
         }.let { assertThat(it.message).isEqualTo("Car with ID: '$carId' hasn't been found in database") }
+    }
+
+    @Test
+    @Transactional(readOnly = true)
+    fun `find Cars by parameters`() {
+        CarsQuery().let {
+            assertThat(carApiService.findCars(it).cars).hasSize(5)
+        }
+        CarsQuery(
+            ratingLowBound = 4.0,
+            ratingHighBound = 6.0
+        ).let {
+            assertThat(carApiService.findCars(it).cars).hasSize(3)
+        }
+        CarsQuery(
+            manufacturer = Manufacturer(name = "BMW")
+        ).let {
+            assertThat(carApiService.findCars(it).cars).hasSize(3)
+        }
+        CarsQuery(
+            model = "Z"
+        ).let {
+            assertThat(carApiService.findCars(it).cars).hasSize(3)
+        }
+        CarsQuery(
+            engineType = Engine.ELECTRIC
+        ).let {
+            assertThat(carApiService.findCars(it).cars).hasSize(2)
+        }
+        CarsQuery(
+            licensePlate = "D"
+        ).let {
+            assertThat(carApiService.findCars(it).cars).hasSize(4)
+        }
+        CarsQuery(
+            vin = "JHKDS"
+        ).let {
+            assertThat(carApiService.findCars(it).cars).hasSize(1)
+        }
+        CarsQuery(
+            vin = "JHKDS"
+        ).let {
+            assertThat(carApiService.findCars(it).cars).hasSize(1)
+        }
+    }
+
+
+    @Test
+    @Transactional(readOnly = true)
+    fun `find Drivers by parameters`() {
+        DriversQuery(
+            engineType = Engine.ELECTRIC,
+            model = "X",
+            manufacturer = Manufacturer(name = "GM"),
+            ratingLowBound = 8.0
+        ).let {
+            assertThat(driverApiService.findDrivers(it).drivers).hasSize(1)
+        }
+        DriversQuery(
+            username = "name.de"
+        ).let {
+            assertThat(driverApiService.findDrivers(it).drivers).hasSize(4)
+        }
+        DriversQuery(
+            onlineStatus = OnlineStatus.ONLINE
+        ).let {
+            assertThat(driverApiService.findDrivers(it).drivers).hasSize(3)
+        }
+        DriversQuery(
+            deleted = true
+        ).let {
+            assertThat(driverApiService.findDrivers(it).drivers).hasSize(1)
+        }
+        DriversQuery(
+            passwordExpired = true
+        ).let {
+            assertThat(driverApiService.findDrivers(it).drivers).hasSize(1)
+        }
     }
 }

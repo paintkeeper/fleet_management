@@ -87,7 +87,7 @@ internal class DriverApiServiceImplTest {
             engineType = Engine.OIL,
             convertible = true,
             licensePlate = "RNDM",
-            manufacturer = Manufacturer(name = "BMW"),
+            manufacturer = "BMW",
             seatCount = 4,
             model = "S500",
             id = carId,

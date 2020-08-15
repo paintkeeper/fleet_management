@@ -37,6 +37,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -44,6 +45,7 @@ dependencies {
     implementation("org.liquibase:liquibase-core:3.10.1")
     runtimeOnly("com.h2database:h2")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    compileOnly("io.github.microutils:kotlin-logging:1.8.3")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(module = "mockito-core")
@@ -52,6 +54,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("com.ninja-squad:springmockk:2.0.3")
+    testImplementation("io.github.microutils:kotlin-logging:1.8.3")
     jooqGenerator("com.h2database:h2")
     jooqGenerator("org.jooq:jooq-meta-extensions:3.13.4")
     jooqGenerator("org.jooq:jooq-codegen:3.13.4")
@@ -148,14 +151,6 @@ jooq {
                                 .withTypes(".*")
                                 .withUserType("com.freenow.model.Engine")
                                 .withConverter("org.jooq.Converter.ofNullable(String.class, Engine.class, i -> Engine.values()[i], Engine::name)")
-                        )
-                        forcedTypes.add(
-                            ForcedType()
-                                .withEnumConverter(true)
-                                .withIncludeExpression(".*\\.*country_iso_code")
-                                .withTypes(".*")
-                                .withUserType("com.freenow.model.CountryCode")
-                                .withConverter("org.jooq.Converter.ofNullable(String.class, CountryCode.class, i -> CountryCode.values()[i], CountryCode::name)")
                         )
                     }
                     generate.apply {

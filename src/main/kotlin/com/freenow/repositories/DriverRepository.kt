@@ -54,14 +54,15 @@ class DriverRepository(private val jooq: DSLContext) {
             .onConflictDoNothing()
             .execute()
         return jooq.selectFrom(DRIVER)
-            .where(DRIVER.ID.eq(record.id))
+            .where(DRIVER.USERNAME.eq(record.username))
             .fetchOne()
     }
 
-    fun unassignCar(id: UUID): Boolean {
+    fun unassignCar(id: UUID, carId: UUID): Boolean {
         return jooq.update(DRIVER)
             .setNull(DRIVER.CAR_ID)
             .where(DRIVER.ID.eq(id))
+            .and(DRIVER.CAR_ID.eq(carId))
             .execute() == 1
     }
 
@@ -87,4 +88,15 @@ class DriverRepository(private val jooq: DSLContext) {
         step = carIds?.let { step.and(DRIVER.CAR_ID.`in`(it)) } ?: step
         return step.fetchStream()
     }
+
+    @Transactional
+    fun update(record: DriverRecord): DriverRecord {
+        jooq.update(DRIVER)
+            .set(record)
+            .execute()
+        return jooq.selectFrom(DRIVER)
+            .where(DRIVER.ID.eq(record.id))
+            .fetchOne()
+    }
+
 }

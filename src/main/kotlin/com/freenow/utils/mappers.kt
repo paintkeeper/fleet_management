@@ -105,7 +105,7 @@ fun map(record: CarRecord, manufacturer: (manufacturerId: UUID) -> Manufacturer)
         engineType = record.engineType,
         convertible = record.convertible,
         licensePlate = record.licensePlate,
-        manufacturer = manufacturer(record.manufacturerId),
+        manufacturer = manufacturer(record.manufacturerId).name,
         seatCount = record.seatCount,
         rating = record.rating,
         id = record.id,
@@ -117,21 +117,7 @@ fun map(record: ManufacturerRecord): Manufacturer {
     return Manufacturer(
         id = record.id,
         name = record.name,
-        dateCreated = record.dateCreated,
-        originCountry = record.originCountryIsoCode
-    )
-}
-
-fun map(
-    manufacturer: Manufacturer,
-    id: () -> UUID,
-    dateCreated: () -> OffsetDateTime?
-): ManufacturerRecord {
-    return ManufacturerRecord(
-        id(),
-        manufacturer.name,
-        manufacturer.originCountry,
-        dateCreated()
+        dateCreated = record.dateCreated
     )
 }
 

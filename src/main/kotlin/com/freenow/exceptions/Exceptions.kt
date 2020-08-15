@@ -16,6 +16,7 @@
 
 package com.freenow.exceptions
 
+import mu.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -31,9 +32,13 @@ class CarAlreadyInUseException(msg: String, code: Int = HttpStatus.FORBIDDEN.val
 @ControllerAdvice
 class DefaultExceptionHandler {
 
+    private val logger = KotlinLogging.logger {}
+
     @ExceptionHandler(value = [ApiException::class])
-    fun onApiException(ex: ApiException, response: HttpServletResponse): Unit =
+    fun onApiException(ex: ApiException, response: HttpServletResponse) {
+        logger.debug { "Sending error Code: ${ex.code} Message:[${ex.message}]" }
         response.sendError(ex.code, ex.message)
+    }
 
     @ExceptionHandler(value = [NotImplementedError::class])
     fun onNotImplemented(ex: NotImplementedError, response: HttpServletResponse): Unit =

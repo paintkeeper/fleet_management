@@ -11,12 +11,27 @@ spring:
   liquibase:
     change-log: classpath:/db/changelog/master.yaml
     enabled: true
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: 5543d1c2d1d67b4a2396
+            client-secret: 3b39ef337a0640ca885aec76dfc5c5ef983db870
 
 server:
   port: 8080
-
+  error:
+    include-message: always
+    include-binding-errors: always
+    
 springdoc:
   swagger-ui:
     path: /
     url: /api-schema.yaml
 
+logging:
+  level:
+    root: INFO
+    com:
+      freenow: DEBUG

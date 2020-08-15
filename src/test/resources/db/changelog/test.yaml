@@ -15,9 +15,6 @@ databaseChangeLog:
                   name: name
                   type: string
               - column:
-                  name: origin_country_iso_code
-                  type: string
-              - column:
                   name: date_created
                   type: string
             encoding: UTF-8

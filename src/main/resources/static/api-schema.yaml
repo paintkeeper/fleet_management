@@ -143,6 +143,27 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
 
+    patch:
+      tags:
+        - Driver
+      operationId: mergeDriver
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDriver'
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        202:
+          description: Driver successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+
+
   /driver/{id}/{carId}:
 
     put:
@@ -163,6 +184,8 @@ paths:
           $ref: '#/components/responses/CarAlreadyInUse'
         404:
           $ref: '#/components/responses/NotFound'
+        406:
+          $ref: '#/components/responses/ValidationError'
         default:
           $ref: '#/components/responses/Unexpected'
 
@@ -172,6 +195,7 @@ paths:
       operationId: unassignCar
       parameters:
         - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/carId'
       responses:
         202:
           description: Car removed successfully
@@ -304,6 +328,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
+        406:
+          $ref: '#/components/responses/ValidationError'
         default:
           $ref: '#/components/responses/Unexpected'
 
@@ -376,7 +402,6 @@ components:
     drivers_query:
       name: drivers_query
       in: query
-      required: true
       description: Driver search parameters
       schema:
         type: object
@@ -400,7 +425,7 @@ components:
           vin:
             type: string
           manufacturer:
-            $ref: '#/components/schemas/Manufacturer'
+            type: string
           seat_count:
             type: integer
             format: int32
@@ -412,7 +437,6 @@ components:
     cars_query:
       name: cars_query
       in: query
-      required: true
       description: Car search parameters
       schema:
         type: object
@@ -428,7 +452,7 @@ components:
           vin:
             type: string
           manufacturer:
-            $ref: '#/components/schemas/Manufacturer'
+            type: string
           seat_count:
             type: integer
             format: int32
@@ -436,6 +460,7 @@ components:
             type: string
           engine_type:
             $ref: '#/components/schemas/Engine'
+
 
   schemas:
 
@@ -484,8 +509,10 @@ components:
           type: string
           minLength: 5
           maxLength: 64
+          example: name@example.com
         password:
           type: string
+          example: V3Ry$tr0nGP@$$w0rd
           description: |
             The password length must be greater than or equal to 8 |
             The password length must be less than 64 |
@@ -495,9 +522,17 @@ components:
             The password must contain one or more special characters
           pattern: '(?=^.{8,64}$)(?=.*\d)(?=.*[!@#$%^&*]+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$'
 
+    UpdateDriver:
+      title: Update Driver parameters
+      type: object
+      properties:
+        online_status:
+          $ref: '#/components/schemas/OnlineStatus'
+
     OnlineStatus:
       title: Driver online status
       type: string
+      example: ONLINE
       enum:
         - ONLINE
         - OFFLINE
@@ -519,18 +554,10 @@ components:
           minimum: -180.
           maximum: 180.
 
-    CountryCode:
-      title: Codes for available countries
-      enum:
-        - US
-        - DE
-        - UK
-      default: DE
-
     Engine:
       title: Car engine type
       type: string
-      default: OIL
+      example: OIL
       enum:
         - OIL
         - ELECTRIC
@@ -550,8 +577,7 @@ components:
           format: date-time
         name:
           type: string
-        origin_country:
-          $ref: '#/components/schemas/CountryCode'
+          example: BMW
 
     Car:
       title: Car entity
@@ -574,51 +600,59 @@ components:
         vin:
           description: VIN number of car body
           type: string
+          example: WBAFG01080L328038
           minLength: 6
           maxLength: 17
         manufacturer:
-          $ref: '#/components/schemas/Manufacturer'
+          type: string
+          example: BMW
         model:
           type: string
+          example: X5
         license_plate:
           type: string
           description: Licence plate installed on a car
-          example: BMW555
+          example: HH45D
         seat_count:
           type: integer
           format: int32
-          default: 4
+          example: 4
         engine_type:
           $ref: '#/components/schemas/Engine'
         convertible:
           type: boolean
-          default: false
+          example: false
         rating:
           type: number
           format: double
+          example: 5.0
 
     UpdateCar:
       title: Update Car parameters
       type: object
       properties:
         manufacturer:
-          $ref: '#/components/schemas/Manufacturer'
+          type: string
         model:
           type: string
+          example: X5
         license_plate:
           type: string
           description: Licence plate installed on a car
-          example: BMW555
+          example: HH99A
         seat_count:
           type: integer
           format: int32
+          example: 4
         engine_type:
           $ref: '#/components/schemas/Engine'
         convertible:
           type: boolean
+          example: false
         rating:
           type: number
           format: double
+          example: 7.0
 
     CarList:
       title: List of selected cars

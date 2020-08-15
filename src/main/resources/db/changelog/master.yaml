@@ -20,9 +20,6 @@ databaseChangeLog:
                     nullable: false
                     unique: true
               - column:
-                  name: origin_country_iso_code
-                  type: varchar(2)
-              - column:
                   name: date_created
                   type: timestamp with time zone
                   constraints:

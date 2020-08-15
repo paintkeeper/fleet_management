@@ -24,6 +24,7 @@ import com.freenow.model.*
 import com.freenow.repositories.CarRepository
 import com.freenow.repositories.ManufacturerRepository
 import com.freenow.utils.map
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.OffsetDateTime
@@ -36,10 +37,13 @@ class CarApiServiceImpl(
     private val manufacturerRepository: ManufacturerRepository
 ) : CarApiService {
 
+    private val logger = KotlinLogging.logger {}
+
     private val randomUUID = UUID::randomUUID
     private val now = { OffsetDateTime.now() }
 
     override fun addCar(car: Car): Car {
+        logger.debug { "Attempt to add a Car $car" }
         val manufacturer = getOrCreateManufacturer(car.manufacturer)
         return map(car,
             randomUUID,
@@ -62,22 +66,22 @@ class CarApiServiceImpl(
         } ?: throw NotFoundException("Car with ID: '$carId' hasn't been found in database")
     }
 
-    override fun findCars(carsQuery: CarsQuery): CarList {
-        val manufacturer = carsQuery.manufacturer
+    override fun findCars(carsQuery: CarsQuery?): CarList {
+        val manufacturer = carsQuery?.manufacturer
             ?.let {
-                getManufacturer(it) ?: throw ValidationException(
+                manufacturerRepository.findByName(it) ?: throw ValidationException(
                     "Cannot use Manufacturer parameter, " +
                             "such manufacturer doesn't exist in database"
                 )
             }?.let { map(it) }
         val carList = carRepository.findByParameters(
-            licensePlate = carsQuery.licensePlate,
-            ratingLowBound = carsQuery.ratingLowBound,
-            ratingHighBound = carsQuery.ratingHighBound,
-            vin = carsQuery.vin,
-            engineType = carsQuery.engineType,
-            seatCount = carsQuery.seatCount,
-            model = carsQuery.model,
+            licensePlate = carsQuery?.licensePlate,
+            ratingLowBound = carsQuery?.ratingLowBound,
+            ratingHighBound = carsQuery?.ratingHighBound,
+            vin = carsQuery?.vin,
+            engineType = carsQuery?.engineType,
+            seatCount = carsQuery?.seatCount,
+            model = carsQuery?.model,
             manufacturerId = manufacturer?.id
         ).map { car ->
             map(car) {
@@ -89,6 +93,7 @@ class CarApiServiceImpl(
 
     @Transactional
     override fun modifyCar(carId: UUID, updateCar: UpdateCar): Car {
+        logger.debug { "Attempt to modify a Car: $updateCar By ID: $carId" }
         val manufacturer = updateCar.manufacturer
             ?.let { getOrCreateManufacturer(it) }
             ?.let { map(it) }
@@ -115,22 +120,18 @@ class CarApiServiceImpl(
     }
 
     override fun removeCar(carId: UUID) {
+        logger.debug { "Attempt to remove a Car By ID: $carId" }
         if (!carRepository.deleteById(carId))
             throw NotFoundException("Car with ID: '$carId' hasn't been found in database")
     }
 
-    private fun getManufacturer(manufacturer: Manufacturer): ManufacturerRecord? {
-        return manufacturer.id?.let { manufacturerRepository.findById(it) }
-            ?: manufacturerRepository.findByName(manufacturer.name)
-    }
-
-    private fun getOrCreateManufacturer(manufacturer: Manufacturer): ManufacturerRecord {
-        return getManufacturer(manufacturer)
+    private fun getOrCreateManufacturer(manufacturer: String): ManufacturerRecord {
+        return manufacturerRepository.findByName(manufacturer)
             ?: manufacturerRepository.create(
-                map(
+                ManufacturerRecord(
+                    randomUUID(),
                     manufacturer,
-                    randomUUID,
-                    now
+                    now()
                 )
             )
     }

@@ -20,7 +20,6 @@ import com.freenow.api.CarApiService
 import com.freenow.api.DriverApiService
 import com.freenow.exceptions.CarAlreadyInUseException
 import com.freenow.exceptions.NotFoundException
-import com.freenow.exceptions.ValidationException
 import com.freenow.model.*
 import com.freenow.repositories.CarRepository
 import com.freenow.repositories.DriverRepository
@@ -150,7 +149,7 @@ internal class IntegrationTests {
         assertThat(driver.car).isNotNull
         assertThat(driver.car?.id).isEqualTo(carUuid)
 
-        driverApiService.unassignCar(driverUuid)
+        driverApiService.unassignCar(driverUuid, carUuid)
 
         driver = driverApiService.getDriver(driverUuid)
         assertThat(driver).isNotNull
@@ -193,9 +192,7 @@ internal class IntegrationTests {
         val newCar = Car(
             vin = UUID.randomUUID().toString(),
             model = "X1",
-            manufacturer = Manufacturer(
-                name = "NNN"
-            ),
+            manufacturer = "NNN",
             seatCount = 2,
             licensePlate = "123SDA",
             convertible = true,
@@ -205,9 +202,7 @@ internal class IntegrationTests {
         assertThat(created).isNotNull
         assertThat(created.licensePlate).isEqualTo("123SDA")
         assertThat(created.model).isEqualTo("X1")
-        assertThat(created.manufacturer).isNotNull
-        assertThat(created.manufacturer.id).isNotNull()
-        assertThat(created.manufacturer.name).isEqualTo("NNN")
+        assertThat(created.manufacturer).isEqualTo("NNN")
         assertThat(created.engineType).isEqualTo(Engine.OIL)
     }
 
@@ -216,9 +211,7 @@ internal class IntegrationTests {
     fun `modify car attempt`() {
         val uuid = UUID.fromString("844ea81e-607f-427b-b4d5-7da2d67a297c")
         val update = UpdateCar(
-            manufacturer = Manufacturer(
-                name = "BMW"
-            ),
+            manufacturer = "BMW",
             licensePlate = "GHDD112"
         )
         val car = carApiService.modifyCar(
@@ -227,8 +220,7 @@ internal class IntegrationTests {
         )
         assertThat(car).isNotNull
         assertThat(car.licensePlate).isEqualTo("GHDD112")
-        assertThat(car.manufacturer).isNotNull
-        assertThat(car.manufacturer.id?.toString()).isEqualTo("d9746514-2ed9-497a-966c-f6669a441cd0")
+        assertThat(car.manufacturer).isEqualTo("BMW")
         val randomId = UUID.randomUUID()
         assertThrows<NotFoundException> {
             carApiService.modifyCar(
@@ -266,7 +258,7 @@ internal class IntegrationTests {
             assertThat(carApiService.findCars(it).cars).hasSize(3)
         }
         CarsQuery(
-            manufacturer = Manufacturer(name = "BMW")
+            manufacturer = "BMW"
         ).let {
             assertThat(carApiService.findCars(it).cars).hasSize(3)
         }
@@ -297,14 +289,13 @@ internal class IntegrationTests {
         }
     }
 
-
     @Test
     @Transactional(readOnly = true)
     fun `find Drivers by parameters`() {
         DriversQuery(
             engineType = Engine.ELECTRIC,
             model = "X",
-            manufacturer = Manufacturer(name = "GM"),
+            manufacturer = "GM",
             ratingLowBound = 8.0
         ).let {
             assertThat(driverApiService.findDrivers(it).drivers).hasSize(1)
@@ -328,6 +319,25 @@ internal class IntegrationTests {
             passwordExpired = true
         ).let {
             assertThat(driverApiService.findDrivers(it).drivers).hasSize(1)
+        }
+    }
+
+    @Test
+    @Transactional(readOnly = true)
+    fun `update Driver Online status`() {
+        val uuid = UUID.fromString("7030970c-a7de-471c-b64b-21348ef6a76a")
+        driverApiService.getDriver(uuid).let {
+            assertThat(it.onlineStatus).isEqualTo(OnlineStatus.OFFLINE)
+        }
+        driverApiService.mergeDriver(
+            uuid, UpdateDriver(
+                onlineStatus = OnlineStatus.ONLINE
+            )
+        ).let {
+            assertThat(it.onlineStatus).isEqualTo(OnlineStatus.ONLINE)
+        }
+        driverApiService.getDriver(uuid).let {
+            assertThat(it.onlineStatus).isEqualTo(OnlineStatus.ONLINE)
         }
     }
 }

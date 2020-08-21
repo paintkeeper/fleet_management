@@ -14,13 +14,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package com.freenow.services
+package backend.services
 
 import com.freenow.api.AuthApiService
-import com.freenow.clients.GithubCredentials
-import com.freenow.clients.GithubOAuthClient
-import com.freenow.clients.GithubOauthRequest
-import com.freenow.exceptions.NotFoundException
+import backend.clients.GithubCredentials
+import backend.clients.GithubOAuthClient
+import backend.clients.GithubOauthRequest
+import backend.exceptions.NotFoundException
 import com.freenow.model.AuthRequest
 import com.freenow.model.AuthResponse
 import org.springframework.stereotype.Service

@@ -96,9 +96,9 @@ openApiGenerate {
     inputSpec.set(openApiSpec)
     outputDir.set(openApiSourcesDir)
 
-    apiPackage.set("com.freenow.api")
-    modelPackage.set("com.freenow.model")
-    invokerPackage.set("com.freenow")
+    apiPackage.set("backend.api")
+    modelPackage.set("backend.model")
+    invokerPackage.set("backend")
     configOptions.set(
         mapOf(
             "dateLibrary" to "java8",
@@ -151,7 +151,7 @@ jooq {
                                 .withEnumConverter(true)
                                 .withIncludeExpression(".*\\.online_status")
                                 .withTypes(".*")
-                                .withUserType("com.freenow.model.OnlineStatus")
+                                .withUserType("backend.model.OnlineStatus")
                                 .withConverter("org.jooq.Converter.ofNullable(String.class, OnlineStatus.class, i -> OnlineStatus.values()[i], OnlineStatus::name)")
                         )
                         forcedTypes.add(
@@ -159,7 +159,7 @@ jooq {
                                 .withEnumConverter(true)
                                 .withIncludeExpression(".*\\.engine_type")
                                 .withTypes(".*")
-                                .withUserType("com.freenow.model.Engine")
+                                .withUserType("backend.model.Engine")
                                 .withConverter("org.jooq.Converter.ofNullable(String.class, Engine.class, i -> Engine.values()[i], Engine::name)")
                         )
                     }
@@ -168,7 +168,7 @@ jooq {
                         isRecords = true
                     }
                     target.apply {
-                        packageName = "com.freenow.jdbc"
+                        packageName = "backend.jdbc"
                     }
                     strategy.apply {
                         name = "org.jooq.codegen.DefaultGeneratorStrategy"

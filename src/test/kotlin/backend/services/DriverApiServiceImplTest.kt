@@ -14,15 +14,15 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////////
 
-package com.freenow.services
+package backend.services
 
 import com.freenow.api.CarApiService
 import com.freenow.api.DriverApiService
 import com.freenow.jdbc.tables.records.DriverGeolocationRecord
 import com.freenow.jdbc.tables.records.DriverRecord
 import com.freenow.model.*
-import com.freenow.repositories.DriverRepository
-import com.freenow.repositories.GeolocationRepository
+import backend.repositories.DriverRepository
+import backend.repositories.GeolocationRepository
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension

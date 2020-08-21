@@ -14,7 +14,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package com.freenow.clients
+package backend.clients
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.freenow.model.AuthResponse

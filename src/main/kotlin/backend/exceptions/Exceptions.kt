@@ -14,7 +14,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package com.freenow.exceptions
+package backend.exceptions
 
 import mu.KotlinLogging
 import org.springframework.http.HttpStatus

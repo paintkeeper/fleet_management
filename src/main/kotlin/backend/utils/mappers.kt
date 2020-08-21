@@ -14,7 +14,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package com.freenow.utils
+package backend.utils
 
 import com.freenow.jdbc.tables.records.CarRecord
 import com.freenow.jdbc.tables.records.DriverRecord

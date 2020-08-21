@@ -14,19 +14,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package com.freenow
+package backend
 
 import com.freenow.api.CarApiService
 import com.freenow.api.DriverApiService
-import com.freenow.exceptions.CarAlreadyInUseException
-import com.freenow.exceptions.NotFoundException
+import backend.exceptions.CarAlreadyInUseException
+import backend.exceptions.NotFoundException
 import com.freenow.model.*
-import com.freenow.repositories.CarRepository
-import com.freenow.repositories.DriverRepository
-import com.freenow.repositories.GeolocationRepository
-import com.freenow.repositories.ManufacturerRepository
-import com.freenow.services.CarApiServiceImpl
-import com.freenow.services.DriverApiServiceImpl
+import backend.repositories.CarRepository
+import backend.repositories.DriverRepository
+import backend.repositories.GeolocationRepository
+import backend.repositories.ManufacturerRepository
+import backend.services.CarApiServiceImpl
+import backend.services.DriverApiServiceImpl
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

@@ -14,18 +14,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package com.freenow.services
+package backend.services
 
 import com.freenow.api.CarApiService
 import com.freenow.api.DriverApiService
-import com.freenow.exceptions.CarAlreadyInUseException
-import com.freenow.exceptions.NotFoundException
-import com.freenow.exceptions.ValidationException
+import backend.exceptions.CarAlreadyInUseException
+import backend.exceptions.NotFoundException
+import backend.exceptions.ValidationException
 import com.freenow.jdbc.tables.records.DriverRecord
 import com.freenow.model.*
-import com.freenow.repositories.DriverRepository
-import com.freenow.repositories.GeolocationRepository
-import com.freenow.utils.map
+import backend.repositories.DriverRepository
+import backend.repositories.GeolocationRepository
+import backend.utils.map
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

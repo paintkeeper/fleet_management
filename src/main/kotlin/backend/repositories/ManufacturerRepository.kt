@@ -14,7 +14,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package com.freenow.repositories
+package backend.repositories
 
 import com.freenow.jdbc.tables.Manufacturer.*
 import com.freenow.jdbc.tables.records.ManufacturerRecord

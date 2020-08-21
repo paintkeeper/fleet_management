@@ -32,6 +32,12 @@ repositories {
     mavenCentral()
 }
 
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:Hoxton.SR5")
+    }
+}
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-jooq")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
@@ -43,7 +49,11 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.springdoc:springdoc-openapi-ui:1.4.4")
     implementation("org.liquibase:liquibase-core:3.10.1")
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
     runtimeOnly("com.h2database:h2")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
+    compileOnly("io.jsonwebtoken:jjwt-api:0.11.2")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     compileOnly("io.github.microutils:kotlin-logging:1.8.3")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {

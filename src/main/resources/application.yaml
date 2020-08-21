@@ -16,8 +16,8 @@ spring:
       client:
         registration:
           github:
-            client-id: 5543d1c2d1d67b4a2396
-            client-secret: 3b39ef337a0640ca885aec76dfc5c5ef983db870
+            client-id: ${GIT_CLIENT_ID}
+            client-secret: ${GIT_CLIENT_SECRET}
 
 server:
   port: 8080
@@ -32,6 +32,16 @@ springdoc:
 
 logging:
   level:
-    root: INFO
+    root: DEBUG
     com:
-      freenow: DEBUG
+      freenow:
+        clients:
+          GithubOAuthClient: DEBUG
+
+feign:
+  client:
+    config:
+      github-oauth-token:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: full

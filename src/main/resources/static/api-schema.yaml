@@ -24,6 +24,7 @@ servers:
 tags:
   - name: Driver
   - name: Car
+  - name: Auth
 
 paths:
 
@@ -330,6 +331,38 @@ paths:
           $ref: '#/components/responses/NotFound'
         406:
           $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/Unexpected'
+
+  /token:
+
+    post:
+      tags:
+        - Auth
+      operationId: obtainToken
+      parameters:
+        - in: header
+          name: referer
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
 
@@ -676,4 +709,34 @@ components:
           type: integer
           format: int32
         message:
+          type: string
+
+    AuthRequest:
+      type: object
+      required:
+        - client_id
+        - code
+        - state
+      properties:
+        client_id:
+          type: string
+        code:
+          type: string
+        state:
+          type: string
+        scope:
+          type: string
+          default: user
+
+    AuthResponse:
+      type: object
+      required:
+        - access_token
+        - token_type
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+        scope:
           type: string

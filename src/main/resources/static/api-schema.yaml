@@ -1,18 +1,18 @@
 openapi: 3.0.3
 
 info:
-  title: Free Now Test task API
+  title: Fleet management solution API
   version: 1.0.0
   license:
     name: GPLv3
     url: https://www.gnu.org/licenses/gpl-3.0.html
   contact:
     name: Andrei Alekseenko
-    email: engelier@gmx.de
+    email: engelier at gmx.de
 
 servers:
   - url: http://localhost:{port}/{base-path}
-    description: Free NOW Service provider API
+    description: Fleet management public API
     variables:
       port:
         enum:

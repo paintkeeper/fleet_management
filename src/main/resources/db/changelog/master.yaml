@@ -2,7 +2,7 @@ databaseChangeLog:
 
   - changeSet:
       id: manufacturer_table
-      author: engelier@gmx.de
+      author: engelier at gmx.de
       changes:
         - createTable:
             tableName: manufacturer
@@ -27,7 +27,7 @@ databaseChangeLog:
 
   - changeSet:
       id: car_table
-      author: engelier@gmx.de
+      author: engelier at gmx.de
       changes:
         - createTable:
             tableName: car
@@ -92,7 +92,7 @@ databaseChangeLog:
 
   - changeSet:
       id: driver_table
-      author: engelier@gmx.de
+      author: engelier at gmx.de
       changes:
         - createTable:
             tableName: driver
@@ -140,7 +140,7 @@ databaseChangeLog:
 
   - changeSet:
       id: driver_geolocation_table
-      author: engelier@gmx.de
+      author: engelier at gmx.de
       changes:
         - createTable:
             tableName: driver_geolocation

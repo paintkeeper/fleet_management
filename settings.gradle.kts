@@ -1,1 +1,1 @@
-rootProject.name = "free_now"
+rootProject.name = "fleet_management"

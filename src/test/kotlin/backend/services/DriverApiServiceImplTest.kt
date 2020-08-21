@@ -16,11 +16,11 @@
 
 package backend.services
 
-import com.freenow.api.CarApiService
-import com.freenow.api.DriverApiService
-import com.freenow.jdbc.tables.records.DriverGeolocationRecord
-import com.freenow.jdbc.tables.records.DriverRecord
-import com.freenow.model.*
+import backend.api.CarApiService
+import backend.api.DriverApiService
+import backend.jdbc.tables.records.DriverGeolocationRecord
+import backend.jdbc.tables.records.DriverRecord
+import backend.model.*
 import backend.repositories.DriverRepository
 import backend.repositories.GeolocationRepository
 import io.mockk.every

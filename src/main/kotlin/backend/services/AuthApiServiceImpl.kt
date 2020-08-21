@@ -16,13 +16,13 @@
 
 package backend.services
 
-import com.freenow.api.AuthApiService
+import backend.api.AuthApiService
 import backend.clients.GithubCredentials
 import backend.clients.GithubOAuthClient
 import backend.clients.GithubOauthRequest
 import backend.exceptions.NotFoundException
-import com.freenow.model.AuthRequest
-import com.freenow.model.AuthResponse
+import backend.model.AuthRequest
+import backend.model.AuthResponse
 import org.springframework.stereotype.Service
 
 /**

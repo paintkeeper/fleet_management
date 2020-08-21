@@ -17,7 +17,7 @@
 package backend.clients
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.freenow.model.AuthResponse
+import backend.model.AuthResponse
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.stereotype.Component

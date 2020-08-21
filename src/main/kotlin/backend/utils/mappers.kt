@@ -16,10 +16,10 @@
 
 package backend.utils
 
-import com.freenow.jdbc.tables.records.CarRecord
-import com.freenow.jdbc.tables.records.DriverRecord
-import com.freenow.jdbc.tables.records.ManufacturerRecord
-import com.freenow.model.*
+import backend.jdbc.tables.records.CarRecord
+import backend.jdbc.tables.records.DriverRecord
+import backend.jdbc.tables.records.ManufacturerRecord
+import backend.model.*
 import java.time.OffsetDateTime
 import java.util.*
 

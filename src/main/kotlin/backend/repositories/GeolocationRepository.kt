@@ -16,8 +16,8 @@
 
 package backend.repositories
 
-import com.freenow.jdbc.tables.DriverGeolocation.*
-import com.freenow.jdbc.tables.records.DriverGeolocationRecord
+import backend.jdbc.tables.DriverGeolocation.*
+import backend.jdbc.tables.records.DriverGeolocationRecord
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal

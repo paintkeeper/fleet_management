@@ -16,11 +16,11 @@
 
 package backend.services
 
-import com.freenow.api.CarApiService
+import backend.api.CarApiService
 import backend.exceptions.NotFoundException
 import backend.exceptions.ValidationException
-import com.freenow.jdbc.tables.records.ManufacturerRecord
-import com.freenow.model.*
+import backend.jdbc.tables.records.ManufacturerRecord
+import backend.model.*
 import backend.repositories.CarRepository
 import backend.repositories.ManufacturerRepository
 import backend.utils.map

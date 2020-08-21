@@ -16,9 +16,9 @@
 
 package backend.repositories
 
-import com.freenow.jdbc.tables.Driver.*
-import com.freenow.jdbc.tables.records.DriverRecord
-import com.freenow.model.OnlineStatus
+import backend.jdbc.tables.Driver.*
+import backend.jdbc.tables.records.DriverRecord
+import backend.model.OnlineStatus
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional

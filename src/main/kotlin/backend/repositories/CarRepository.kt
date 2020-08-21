@@ -16,9 +16,9 @@
 
 package backend.repositories
 
-import com.freenow.jdbc.tables.Car.*
-import com.freenow.jdbc.tables.records.CarRecord
-import com.freenow.model.Engine
+import backend.jdbc.tables.Car.*
+import backend.jdbc.tables.records.CarRecord
+import backend.model.Engine
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional

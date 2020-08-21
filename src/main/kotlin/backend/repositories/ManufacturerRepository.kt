@@ -16,8 +16,8 @@
 
 package backend.repositories
 
-import com.freenow.jdbc.tables.Manufacturer.*
-import com.freenow.jdbc.tables.records.ManufacturerRecord
+import backend.jdbc.tables.Manufacturer.*
+import backend.jdbc.tables.records.ManufacturerRecord
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional

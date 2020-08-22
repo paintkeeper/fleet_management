@@ -21,6 +21,9 @@ servers:
       base-path:
         default: v1
 
+security:
+  - jwtAuth: []
+
 tags:
   - name: Driver
   - name: Car
@@ -367,6 +370,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
 
 components:
+
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 
   responses:
 

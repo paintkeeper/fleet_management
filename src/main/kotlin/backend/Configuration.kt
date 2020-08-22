@@ -16,8 +16,7 @@
 
 package backend
 
-import io.jsonwebtoken.Jwts
-import mu.KotlinLogging
+import backend.utils.CustomOAuth2AuthorizationHelper
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration
 import org.springframework.boot.autoconfigure.jooq.JooqAutoConfiguration
 import org.springframework.cloud.openfeign.EnableFeignClients
@@ -26,17 +25,13 @@ import org.springframework.context.annotation.Profile
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService
+import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
-import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtBearerTokenAuthenticationConverter
-import org.springframework.security.web.DefaultRedirectStrategy
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 import org.springframework.transaction.annotation.EnableTransactionManagement
-import java.time.Instant
-import java.util.*
-import javax.servlet.http.Cookie
+import org.springframework.web.servlet.config.annotation.CorsRegistry
+import org.springframework.web.servlet.config.annotation.EnableWebMvc
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 
 /**
@@ -51,61 +46,47 @@ class Configuration
 @EnableWebSecurity
 @Profile("security")
 class SecurityConfig(
+    private val oauthHelper: CustomOAuth2AuthorizationHelper,
     private val clientRegistrationRepository: ClientRegistrationRepository
 ) : WebSecurityConfigurerAdapter() {
 
-    private val logger = KotlinLogging.logger {}
 
     override fun configure(http: HttpSecurity) {
-        val successHandler = SimpleUrlAuthenticationSuccessHandler()
-        successHandler.setUseReferer(true)
-        val redirectStrategy = DefaultRedirectStrategy()
         http
             .csrf().disable()
             .cors().and()
+            .headers().frameOptions().disable()
+            .and()
             .authorizeRequests()
-            .anyRequest()
-            .authenticated()
+            .anyRequest().authenticated()
             .and()
             .oauth2Login()
             .clientRegistrationRepository(clientRegistrationRepository)
-            .authorizedClientService(InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository))
-
-            .successHandler(AuthenticationSuccessHandler { request, response, authentication ->
-                logger.debug { "$authentication" }
-                val token = Jwts.builder()
-                    .setSubject("1234567890")
-                    .setId("8cd78dc9-f022-4308-8a2a-c2fced954117")
-                    .setIssuedAt(Date.from(Instant.ofEpochSecond(1597957712)))
-                    .setExpiration(Date.from(Instant.ofEpochSecond(1597961312)))
-                    .claim("name", "John Doe")
-                    .claim("admin", true)
-                    // .signWith(SignatureAlgorithm.HS256, "UTF-8")
-                    .compact()
-                response.addCookie(Cookie("JWT", token))
-                response.setTrailerFields {
-                    mapOf(
-                        "token" to token
-                    )
-                }
-                redirectStrategy.sendRedirect(
-                    request, response,
-                    request.getHeader("Referer")
-                )
-
-
-                logger.debug { token }
-            })
+            .authorizedClientService(oauthHelper)
+            .successHandler(oauthHelper)
             .and()
-            //.sessionManagement()
-            //.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            //.and()
+            .sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
             .oauth2ResourceServer()
             .jwt()
-            .decoder { token ->
-                Jwt.withTokenValue(token).build()
-            }
+            .decoder(oauthHelper)
             .jwtAuthenticationConverter(JwtBearerTokenAuthenticationConverter())
     }
 
+}
+
+@Configuration
+@EnableWebMvc
+class WebConfig : WebMvcConfigurer {
+
+    override fun addCorsMappings(registry: CorsRegistry) {
+        registry.addMapping("/**")
+            .allowedOrigins("*")
+            .allowedMethods("GET", "POST", "PUT", "DELETE")
+            .allowedHeaders("authorization", "content-type", "xsrf-token")
+            .exposedHeaders("xsrf-token")
+            .allowCredentials(false)
+            .maxAge(3600)
+    }
 }

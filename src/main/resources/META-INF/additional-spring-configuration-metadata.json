@@ -1,0 +1,24 @@
+{
+  "properties": [
+    {
+      "name": "oauth2.secret-key",
+      "type": "java.lang.String",
+      "description": "Secret key for encoding generated Json web tokens."
+    },
+    {
+      "name": "oauth2.default-scope",
+      "type": "java.lang.String",
+      "description": "Access scope for users, authenticated on public identity providers."
+    },
+    {
+      "name": "oauth2.max-age",
+      "type": "kotlin.ULong",
+      "description": "Token expiration time in seconds."
+    },
+    {
+      "name": "oauth2.issuer",
+      "type": "java.lang.String",
+      "description": "Json web token issuer(current app)."
+    }
+  ]
+}

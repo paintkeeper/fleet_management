@@ -47,3 +47,9 @@ feign:
         connectTimeout: 5000
         readTimeout: 5000
         loggerLevel: full
+
+oauth2:
+  secret-key: ${GIT_CLIENT_SECRET:null}
+  default-scope: fleet
+  max-age: 3600
+  issuer: fleet_management

@@ -58,6 +58,7 @@ class SecurityConfig(
             .headers().frameOptions().disable()
             .and()
             .authorizeRequests()
+            .antMatchers("/oauth/token").permitAll()
             .anyRequest().authenticated()
             .and()
             .oauth2Login()
@@ -66,11 +67,10 @@ class SecurityConfig(
             .successHandler(oauthHelper)
             .and()
             .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .sessionCreationPolicy(SessionCreationPolicy.NEVER)
             .and()
             .oauth2ResourceServer()
             .jwt()
-            .decoder(oauthHelper)
             .jwtAuthenticationConverter(JwtBearerTokenAuthenticationConverter())
     }
 

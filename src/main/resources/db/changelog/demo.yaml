@@ -19,7 +19,7 @@ databaseChangeLog:
                   type: string
             encoding: UTF-8
             primaryKey: id
-            file: db/changelog/data/demo-manufacturers.csv
+            file: db/changelog/demo/demo-manufacturers.csv
             tableName: manufacturer
             quotchar: "\""
 
@@ -65,7 +65,7 @@ databaseChangeLog:
                   type: string
             encoding: UTF-8
             primaryKey: id
-            file: db/changelog/data/demo-cars.csv
+            file: db/changelog/demo/demo-cars.csv
             tableName: car
             quotchar: "\""
 
@@ -101,6 +101,6 @@ databaseChangeLog:
                   type: string
             encoding: UTF-8
             primaryKey: id
-            file: db/changelog/data/demo-drivers.csv
+            file: db/changelog/demo/demo-drivers.csv
             tableName: driver
             quotchar: "\""

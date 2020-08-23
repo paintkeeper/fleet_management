@@ -19,7 +19,7 @@ spring:
             client-id: ${GIT_CLIENT_ID:null}
             client-secret: ${GIT_CLIENT_SECRET:null}
   profiles:
-    active: security
+    active: security, demo
 
 server:
   port: 8080

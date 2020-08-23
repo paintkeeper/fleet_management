@@ -41,7 +41,7 @@ import java.util.*
  * Andrei Alekseenko {engelier at gmx.de}
  */
 @SpringBootTest
-@ActiveProfiles("test")
+@ActiveProfiles("demo")
 internal class IntegrationTests {
 
     @Autowired

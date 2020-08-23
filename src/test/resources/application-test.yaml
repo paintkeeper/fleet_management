@@ -1,9 +1,7 @@
 spring:
-  liquibase:
-    change-log: classpath:/db/changelog/test.yaml
 
   profiles:
-    active: 
+    active: demo
 
 logging:
   level:

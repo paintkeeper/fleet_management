@@ -16,11 +16,12 @@
 
 package backend.utils
 
-import io.fusionauth.jwt.Signer
-import io.fusionauth.jwt.Verifier
-import io.fusionauth.jwt.domain.JWT
-import io.fusionauth.jwt.hmac.HMACSigner
-import io.fusionauth.jwt.hmac.HMACVerifier
+import com.nimbusds.jose.JWSAlgorithm
+import com.nimbusds.jose.JWSHeader
+import com.nimbusds.jose.JWSSigner
+import com.nimbusds.jose.crypto.MACSigner
+import com.nimbusds.jwt.JWTClaimsSet
+import com.nimbusds.jwt.SignedJWT
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
@@ -36,12 +37,11 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtDecoder
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.stereotype.Component
-import java.time.ZoneOffset
-import java.time.ZonedDateTime
-import java.util.function.Consumer
-import java.util.function.Function
+import java.util.*
+import javax.crypto.spec.SecretKeySpec
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -73,13 +73,15 @@ class CustomOAuth2AuthorizationHelper(
         OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI
     )
 
-    private val signer: Signer = HMACSigner.newSHA384Signer(secretKey)
-    private val verifiers = mapOf(signer.algorithm.name to HMACVerifier.newVerifier(secretKey))
-    private val decoder = JWT.getDecoder()
-
+    private val decoder = NimbusJwtDecoder
+        .withSecretKey(SecretKeySpec(secretKey.toByteArray(), "AES"))
+        .build()
+    private var signer: JWSSigner = MACSigner(secretKey)
     private val authorizationClientService = InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository)
 
     private val idGenerator = IdGenerator()
+
+    private val tokenLifetime = maxAge * 1000
 
     override fun resolve(request: HttpServletRequest?): OAuth2AuthorizationRequest {
         return requestHandler.resolve(request)
@@ -121,47 +123,39 @@ class CustomOAuth2AuthorizationHelper(
                             else -> scopes.add(it.authority.substring(6))
                         }
                     }
-                    JWT()
-                        .setUniqueId(idGenerator())
-                        .setIssuer(issuer)
-                        .setIssuedAt(ZonedDateTime.now(ZoneOffset.UTC))
-                        .setSubject(user.name)
-                        .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60))
-                        .addClaim("data", "flow")
-                        .addClaim("principal", user.attributes)
-                        .addClaim("authenticated", authentication.isAuthenticated)
-                        .addClaim("scope", scopes)
-                        .addClaim("role", roles)
+                    val now = System.currentTimeMillis()
+                    val claimsSet: JWTClaimsSet = JWTClaimsSet.Builder()
+                        .jwtID(idGenerator())
+                        .subject(user.name)
+                        .issuer(issuer)
+                        .issueTime(Date(now))
+                        .expirationTime(Date(now + tokenLifetime))
+                        .claim("data", "flow")
+                        .claim("principal", user.attributes)
+                        .claim("authenticated", authentication.isAuthenticated)
+                        .claim("scope", scopes)
+                        .claim("role", roles)
+                        .build()
+                    val signedJWT = SignedJWT(JWSHeader(JWSAlgorithm.HS256), claimsSet)
+                    signedJWT.sign(signer)
+                    signedJWT.serialize()
                 }
-                .let { JWT.getEncoder().encode(it, signer) }
         }.fold({
-            response.sendRedirect("${request.getHeader("Referer")}?jwt=$it")
+            response.encodeRedirectURL("${request.getHeader("Referer")}?jwt=$it")
+            response.status = HttpServletResponse.SC_MOVED_PERMANENTLY;
+            response.setHeader("Location", "${request.getHeader("Referer")}?jwt=$it")
+            response.flushBuffer()
         }, { logger.error { it.message } })
     }
 
     override fun decode(token: String): Jwt {
-        val decoded = Jwt.withTokenValue(token)
-        val jwt = decoder.decode(token, verifiers) {
-            val alg = it.algorithm.name
-            val typ = it.type.name
-            decoded.header("alg", alg)
-            decoded.header("typ", typ)
-            alg
-        }
-
-        return decoded
-            .jti(jwt.uniqueId)
-            .issuer(jwt.issuer)
-            .issuedAt(jwt.issuedAt.toInstant())
-            .expiresAt(jwt.expiration.toInstant())
-            .subject(jwt.subject)
-            .claims { it.putAll(jwt.otherClaims) }.build()
+        return decoder.decode(token)
     }
 
 }
 
 class IdGenerator : () -> String {
-    val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray()
+    private val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray()
     override fun invoke(): String {
         return (0..16)
             .map { kotlin.random.Random.nextInt(0, chars.size) }

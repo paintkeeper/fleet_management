@@ -22,7 +22,8 @@ servers:
         default: v1
 
 security:
-  - jwtAuth: []
+  - GitHub:
+      - fleet
 
 tags:
   - name: Driver
@@ -372,10 +373,14 @@ paths:
 components:
 
   securitySchemes:
-    jwtAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    GitHub:
+      type: oauth2
+      description: This API uses OAuth 2 with the implicit grant flow. [More info](https://api.example.com/docs/auth)
+      flows:
+        implicit:
+          authorizationUrl: /oauth2/authorization/github
+          scopes:
+            fleet: manage fleet
 
   responses:
 

@@ -50,7 +50,6 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-ui:1.4.4")
     implementation("org.liquibase:liquibase-core:3.10.1")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
-    implementation("io.fusionauth:fusionauth-jwt:3.5.3")
     runtimeOnly("com.h2database:h2")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     compileOnly("io.github.microutils:kotlin-logging:1.8.3")
